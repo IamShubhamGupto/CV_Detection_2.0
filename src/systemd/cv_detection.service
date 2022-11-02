@@ -1,0 +1,15 @@
+[Unit]
+Description=CV Detection systemD daemon example
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=shubham
+ExecStartPre=conda activate cv_detection
+ExecStart=python /path/to/my/main.py
+
+[Install]
+WantedBy=multi-user.target

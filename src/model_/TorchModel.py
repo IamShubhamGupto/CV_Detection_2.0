@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(level=logging.DEBUG)
 
-class TorchModel(object):
+class TorchModel:
     def __init__(self,
         repo_name='ultralytics/yolov5',
         weights_path='./pt_files/best.pt',

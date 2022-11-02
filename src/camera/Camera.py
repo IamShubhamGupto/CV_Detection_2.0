@@ -5,7 +5,7 @@ from pathlib import Path
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(level=logging.DEBUG)
 
-class Camera(object):
+class Camera:
     def __init__(self, camera_id=0):
         self.camera_id=camera_id
         self.video_stream = cv2.VideoCapture(camera_id)

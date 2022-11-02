@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(level=logging.DEBUG)
 
-class ProcessFrame(object):
+class ProcessFrame:
 
     def process_frame(self, color_image, torch_model_object, display=False):
         conf_thres = 0.25  # Confidence threshold
@@ -45,10 +45,10 @@ class ProcessFrame(object):
             logger.debug("({},{}) \n\n\n                     ({},{})".format(
                     x_min, y_min, x_max, y_max))
 
-            if display:
-                bbox = [x_min, y_min, x_max, y_max]
-                color_image = self.write_bbx_frame(
-                    color_image, bbox, label, conf)
+            # PROMPT 2 - display horizontal and vertical offset
+            bbox = [x_min, y_min, x_max, y_max]
+            color_image = self.write_bbx_frame(
+                color_image, bbox, label, conf)
         # Display the image
         cv2.imshow('RealSense', color_image)
         cv2.waitKey(1)
