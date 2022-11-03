@@ -18,11 +18,14 @@ class TorchModel:
     
     # Model
     def get_model(self):
-        if torch.backends.mps.is_available():
-            mps_device = torch.device("mps")
-            model = torch.hub.load(self.repo_name, self.model_name, path=self.weights_path, device=mps_device)  # or yolov5m, yolov5l, yolov5x, custom
-            logger.debug('torch model loaded with MPS')
-            return model
+        try:
+            if torch.backends.mps.is_available():
+                mps_device = torch.device("mps")
+                model = torch.hub.load(self.repo_name, self.model_name, path=self.weights_path, device=mps_device)  # or yolov5m, yolov5l, yolov5x, custom
+                logger.debug('torch model loaded with MPS')
+                return model
+        except:
+            logger.debug('running non mac OS ')
         model = torch.hub.load(self.repo_name, self.model_name, path=self.weights_path)  # or yolov5m, yolov5l, yolov5x, custom
         logger.debug('torch model loaded')
         return model
