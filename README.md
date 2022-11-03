@@ -6,9 +6,11 @@
 - install Anaconda
 - install CUDA
 ```shell
-conda env create -f environment.yml
+# use yml file based on OS
+conda env create -f environment_win.yml
 ```
 ### Prompt 3
+<b>Prompt 3 only shows the structure of the systemD file and how it should be stored.</b>
 ```shell
 cp src/systemd/cv_detection.service /etc/systemd/system/cv_detection.service
 ```
@@ -24,9 +26,20 @@ python main.py
 ```
 
 ### Prompt 3
+<b>Edit path to main file before enabling the service</b>
 ```shell
 systemctl start cv_detection
 systemctl enable cv_detection
+```
+
+### Update yml files
+#### Linux or Mac
+```shell
+conda env export --no-builds | grep -v "prefix" > environment.yml
+```
+#### Windows
+```shell
+conda env export --no-builds | findstr -v "prefix" > environment.yml
 ```
 
 ### References
