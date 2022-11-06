@@ -1,3 +1,4 @@
+# ignore this class
 import cv2
 import numpy as np
 class Tracker:

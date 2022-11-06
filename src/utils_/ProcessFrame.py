@@ -3,15 +3,19 @@ import cv2
 import numpy as np
 from pathlib import Path
 import logging
-from utils_.ProcessOffset import ProcessOffset
 # logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(logging.DEBUG)
 
 class ProcessFrame:
-
-    def __init__(self, camera_width, camera_height):
-        self.process_offset_object = ProcessOffset(camera_width, camera_height)
+    def __init__(self, camera_width, camera_height, HFOV = 69.4, VFOV = 42.5, DFOV = 77.0):
+        self.camera_width = camera_width
+        self.camera_height = camera_height
+        self.center_x = camera_width/2
+        self.center_y = camera_height/2
+        self.HFOV = HFOV
+        self.VFOV = VFOV
+        self.DFOV = DFOV
 
     def process_frame(self, color_image, torch_model_object, detect_red):
         conf_thres = 0.25  # Confidence threshold
@@ -67,7 +71,7 @@ class ProcessFrame:
             logger.debug("BLUE PROBS = %d", blue_probs)
             if blue_probs >= 25:
             # logger.info("MASK = ",mask)
-                x_rad_offset, y_rad_offset = self.process_offset_object.calculate_offset((x_max-x_min, y_max-y_min))
+                x_rad_offset, y_rad_offset = self.calculate_offset(((x_max+x_min)//2, (y_max+y_min)//2))
                 color_image = self.write_bbx_frame(
                     color_image, bbox, label, conf)
         # Display the image
@@ -86,3 +90,17 @@ class ProcessFrame:
              cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
         return color_image
+
+    def calculate_offset(self, roi_center_offsets):
+        x_roi, y_roi = roi_center_offsets
+        y_roi = self.camera_width - y_roi
+        move_x = x_roi - self.center_x
+        move_y = y_roi - self.center_y
+        if(move_x != 0):
+            move_x /= self.center_x
+        if(move_y != 0):
+            move_y /= self.center_y
+        move_x *= self.HFOV/2
+        move_y *= self.VFOV/2
+        logger.debug("PROMPT2 x angle offset %f y angle offset %f", move_x, move_y)
+        return (move_x, move_y)
