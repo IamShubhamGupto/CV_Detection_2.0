@@ -7,7 +7,7 @@
 - install CUDA
 ```shell
 # use yml file based on OS
-conda env create -f environment_win.yml
+conda env create -f conda_envs/environment_win.yml
 ```
 ### Prompt 3
 <b>Prompt 3 only shows the structure of the systemD file and how it should be stored.</b>
@@ -17,7 +17,7 @@ cp src/systemd/cv_detection.service /etc/systemd/system/cv_detection.service
 
 ## Run
 ### Prompt 1,2
-<b>Make sure to have atleast 1 camera connected</b> 
+<b>Make sure to have atleast 1 camera connected / add video path</b> 
 
 From the base repository
 ```shell

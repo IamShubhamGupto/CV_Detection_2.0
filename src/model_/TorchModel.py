@@ -1,9 +1,9 @@
 import torch
 from pathlib import Path
 import logging
-
+# logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
-logger.setLevel(level=logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 class TorchModel:
     def __init__(self,
