@@ -1,6 +1,22 @@
 # NYU UltraViolet Midterm 2 practical
 ~ Shubham Gupta
 
+## Submission questions
+### Design Decisions
+#### Prompt1 
+- Develop a class based solution. This allows code to be modularized and can be reused / refactored with other future projects.
+- Used inbuilt python logger module. This sets the logging level for each python file and again allows to debug classes independently.
+- The plates are first detected using the CV torch model. The plate coordinates are then passed on for preprocessing where I detected the colour. If the plates HSV range matches the blue colour HSV range, we draw bounding boxes. This is much faster than first finding blue colour and then running multiple instances of inference on the the image.
+### Prompt 2
+- Developed prompt 2 as part of prompt 1. The offset is calculated as a function of the ProcessFrame class. This made sense logically as we only need to get offset once a blue plate is detected (in process_frame method).
+### Prompt 3:
+- The SystemD service shown only has the structure the service and is not actually designed to run. 
+- The service type is simple. The remaining types do not fit the requirements of the service. 'exec' was another option but it will not proceed before both fork() and execve() in the service process.
+### Prompt 4:
+<p align="center">
+    <img src="./doc/multi_plate.png">
+</p>
+
 ## Installation
 ### Prompt 1,2
 - install Anaconda
