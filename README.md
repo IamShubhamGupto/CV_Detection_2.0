@@ -14,7 +14,7 @@
 - The service type is simple. The remaining types do not fit the requirements of the service. 'exec' was another option but it will not proceed before both fork() and execve() in the service process.
 ### Prompt 4:
 <p align="center">
-    <img src="./doc/multi_plate.png">
+    <img src="./docs/multi_plate.png">
 </p>
 
 ## Installation
