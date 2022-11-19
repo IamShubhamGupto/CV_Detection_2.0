@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 import logging
+from utils_.Tracker import Tracker
 # logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(logging.DEBUG)
@@ -16,6 +17,9 @@ class ProcessFrame:
         self.HFOV = HFOV
         self.VFOV = VFOV
         self.DFOV = DFOV
+
+        self.tracker_object = Tracker()
+
 
     def process_frame(self, color_image, torch_model_object, detect_red):
         conf_thres = 0.25  # Confidence threshold
@@ -74,20 +78,25 @@ class ProcessFrame:
                 x_rad_offset, y_rad_offset = self.calculate_offset(((x_max+x_min)//2, (y_max+y_min)//2))
                 color_image = self.write_bbx_frame(
                     color_image, bbox, label, conf)
+                kalman_prediction = self.tracker_object.track(bbox, hsv_roi, color_image)
+                color_image = self.write_bbx_frame(
+                    color_image, kalman_prediction, "kalman", conf="", color=(0,0,255), thickness=2
+                )
         # Display the image
         cv2.imshow('RealSense', color_image)
         cv2.waitKey(1)
 
-    def write_bbx_frame(self, color_image, bbxs, label, conf):
+    # default color green
+    def write_bbx_frame(self, color_image, bbxs, label, conf="", color=(0, 255,0), thickness=2):
         # Display the bounding box
         x_min, y_min, x_max, y_max = bbxs
         cv2.rectangle(color_image, (x_min, y_min), 
-            (x_max, y_max), (0, 255, 0), 2)  # Draw with green color
+            (x_max, y_max), color, thickness) 
 
         # Display the label with the confidence
         label_conf = label + " " + str(conf)
         cv2.putText(color_image, label_conf, (x_min,y_min),
-             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+             cv2.FONT_HERSHEY_SIMPLEX, 1, color, thickness, cv2.LINE_AA)
 
         return color_image
 
