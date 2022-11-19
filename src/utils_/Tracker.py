@@ -1,4 +1,4 @@
-# ignore this class
+# https://github.com/tobybreckon/python-examples-cv/blob/master/kalman_tracking_live.py
 import cv2
 import numpy as np
 
