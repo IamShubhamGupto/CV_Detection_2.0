@@ -1,7 +1,7 @@
 # https://github.com/tobybreckon/python-examples-cv/blob/master/kalman_tracking_live.py
 import cv2
 import numpy as np
-
+import threading
 # return centre of a set of points representing a rectangle
 def center(points):
     x = np.float32(
@@ -17,8 +17,11 @@ def center(points):
          points[3][1]) /
         4.0)
     return np.array([np.float32(x), np.float32(y)], np.float32)
-class Tracker(object):
-    def __init__(self):
+class Tracker(threading.Thread):
+    def __init__(self, thread_name, thread_ID):
+        threading.Thread.__init__(self) 
+        self.thread_name = thread_name 
+        self.thread_ID = thread_ID 
         self.kalman = cv2.KalmanFilter(4, 2)
         self.kalman.measurementMatrix = np.array([[1, 0, 0, 0],
                                             [0, 1, 0, 0]], np.float32)
@@ -45,6 +48,8 @@ class Tracker(object):
         # move by at least 1 pixel pos. difference
         self.term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
         # self.hsv_crop = hsv_crop
+    def run(self): 
+        print("Thread name: "+str(self.thread_name) +"  "+ "Thread id: "+str(self.thread_ID));
     
     def track(self, boxes, hsv_crop, frame):
         # initial tracking

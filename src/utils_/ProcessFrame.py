@@ -3,13 +3,18 @@ import cv2
 import numpy as np
 from pathlib import Path
 import logging
+import threading 
 from utils_.Tracker import Tracker
+from model_.TorchModel import TorchModel
 # logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(logging.DEBUG)
 
-class ProcessFrame:
-    def __init__(self, camera_width, camera_height, HFOV = 69.4, VFOV = 42.5, DFOV = 77.0):
+class ProcessFrame(threading.Thread):
+    def __init__(self, thread_name, thread_ID, camera_width, camera_height, HFOV = 69.4, VFOV = 42.5, DFOV = 77.0):
+        threading.Thread.__init__(self) 
+        self.thread_name = thread_name 
+        self.thread_ID = thread_ID
         self.camera_width = camera_width
         self.camera_height = camera_height
         self.center_x = camera_width/2
@@ -17,14 +22,26 @@ class ProcessFrame:
         self.HFOV = HFOV
         self.VFOV = VFOV
         self.DFOV = DFOV
+        
 
-        self.tracker_object = Tracker()
+        self.torch_model_object = TorchModel("model_thread", 2, weights_path='./model_/pt_files/best.pt')
+        self.torch_model_object.start()
+        self.tracker_object = Tracker("tracker_thread", 4)
+        self.tracker_object.start()
+        self.torch_model = self.torch_model_object.get_model()
 
+    # Overrriding of run() method in the subclass 
+    def run(self): 
+        print("Thread name: "+str(self.thread_name) +"  "+ "Thread id: "+str(self.thread_ID)); 
 
-    def process_frame(self, color_image, torch_model_object, detect_red):
+    def __del__(self):
+        self.tracker_object.join()
+        self.torch_model_object.join()
+
+    def process_frame(self, color_image, detect_red):
         conf_thres = 0.25  # Confidence threshold
         # Get bounding boxes
-        results = torch_model_object(color_image)
+        results = self.torch_model(color_image)
 
         # Post process bounding boxes
         #rows = results.pandas().xyxy[0].to_numpy()

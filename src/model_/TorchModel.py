@@ -1,20 +1,29 @@
 import torch
 from pathlib import Path
 import logging
+import threading
 # logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(logging.DEBUG)
 
-class TorchModel:
+class TorchModel(threading.Thread):
     def __init__(self,
+        thread_name, thread_ID,
         repo_name='ultralytics/yolov5',
         weights_path='./pt_files/best.pt',
         model_name = 'custom'
         ):
+        threading.Thread.__init__(self)
+        self.thread_name = thread_name 
+        self.thread_ID = thread_ID 
         self.weights_path = weights_path
         self.repo_name = repo_name
         self.model_name = model_name
         logger.debug('initialized TorchModel class')
+
+    # Overrriding of run() method in the subclass 
+    def run(self): 
+        print("Thread name: "+str(self.thread_name) +"  "+ "Thread id: "+str(self.thread_ID))
     
     # Model
     def get_model(self):
