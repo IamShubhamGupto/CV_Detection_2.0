@@ -29,6 +29,9 @@ class Camera:
         logger.debug('getting camera id %d'.format(self.get_camera_id))
         return self.camera_id
     
+    def get_camera_fps(self):
+        return self.video_stream.get(5)
+    
     
     
 
