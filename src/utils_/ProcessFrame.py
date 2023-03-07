@@ -3,7 +3,9 @@ import cv2
 import numpy as np
 from pathlib import Path
 import logging
-from utils_.Tracker import Tracker
+# from utils_.Tracker import Tracker
+from utils_.Sort import *
+import matplotlib.pyplot as plt
 # logging.basicConfig(level = logging.DEBUG)
 logger = logging.getLogger(Path(__file__).stem)
 logger.setLevel(logging.DEBUG)
@@ -17,22 +19,43 @@ class ProcessFrame:
         self.HFOV = HFOV
         self.VFOV = VFOV
         self.DFOV = DFOV
-
-        self.tracker_object = Tracker()
+        
+        self.tracker = Sort()
+        cmap = plt.get_cmap('tab20b')
+        # self.tracker_object = Tracker()
+        self.colors = [cmap(i)[:3] for i in np.linspace(0, 1, 20)]
 
 
     def process_frame(self, color_image, torch_model_object, detect_red):
-        conf_thres = 0.25  # Confidence threshold
+        # conf_thres = 0.25  # Confidence threshold
         # Get bounding boxes
         results = torch_model_object(color_image)
 
         # Post process bounding boxes
         #rows = results.pandas().xyxy[0].to_numpy()
+        img_size = max(color_image.shape)
+        pad_x = max(color_image.shape[0] - color_image.shape[1], 0) * (img_size / max(color_image.shape))
+        pad_y = max(color_image.shape[1] - color_image.shape[0], 0) * (img_size / max(color_image.shape))
+        unpad_h = img_size - pad_y
+        unpad_w = img_size - pad_x
 
         detections_rows = results.pandas().xyxy
 
         for i in range(len(detections_rows)):
             rows = detections_rows[i].to_numpy()
+        
+        # if rows is not None:
+        #     tracked_objects = self.tracker.update(rows)
+
+            # unique_labels = rows[:, -1].cpu().unique()
+            # n_cls_preds = len(unique_labels)
+            # for x1, y1, x2, y2, obj_id, cls in tracked_objects:
+        # if rows is not None:
+        #     tracked_objects = self.tracker.update(rows)
+
+            
+      
+
 
         # Go through all detections
         BLUE_MIN=np.array([100,150,0],np.uint8)
@@ -45,6 +68,37 @@ class ProcessFrame:
             y_min = int(y_min)
             x_max = int(x_max)
             y_max = int(y_max)
+            tracked_objects = self.tracker.update(np.expand_dims(rows[i], axis=0))
+            for x1, y1, x2, y2, obj_id, cls_pred in tracked_objects:
+                # print(type(y1))
+                # box_h = int(((float(y2) - float(y1)) / unpad_h) * color_image.shape[0])
+                # box_w = int(((float(x2) - float(x1)) / unpad_w) * color_image.shape[1])
+                # y1 = int(((float(y1) - pad_y // 2) / unpad_h) * color_image.shape[0])
+                # x1 = int(((float(x1) - pad_x // 2) / unpad_w) * color_image.shape[1])
+                x1 = int(float(x1))
+                y1 = int(float(y1))
+                x2 = int(float(x2))
+                y2 = int(float(y2))
+
+                color = self.colors[int(obj_id) % len(self.colors)]
+                color = [i * 255 for i in color]
+                cv2.rectangle(color_image, (x1, y1), (x2, y2), color, 4)
+                cv2.rectangle(color_image, (x1, y1-35), (x1+len(cls_pred)*19+60, y1), color, -1)
+                cv2.putText(color_image, cls_pred + "-" + str(int(obj_id)), (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 3)
+            # tracked_object = self.tracker.update(rows)
+            # for x1, y1, x2, y2, obj_id, cls_pred in tracked_object:
+            #     box_h = int(((y2 - y1) / unpad_h) * color_image.shape[0])
+            #     box_w = int(((x2 - x1) / unpad_w) * color_image.shape[1])
+            #     y1 = int(((y1 - pad_y // 2) / unpad_h) * color_image.shape[0])
+            #     x1 = int(((x1 - pad_x // 2) / unpad_w) * color_image.shape[1])
+
+            #     color = self.colors[int(obj_id) % len(self.colors)]
+            #     color = [i * 255 for i in color]
+            #     # cls = classes[int(cls_pred)]
+            #     cv2.rectangle(frame, (x1, y1), (x1+box_w, y1+box_h), color, 4)
+            #     cv2.rectangle(frame, (x1, y1-35), (x1+len(cls)*19+60, y1), color, -1)
+            #     cv2.putText(frame, cls + "-" + str(int(obj_id)), (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 3)
+
             # Coordinate system is as follows:
             # 0,0 is the top left corner of the image
             # x is the horizontal axis
@@ -78,10 +132,11 @@ class ProcessFrame:
                 x_rad_offset, y_rad_offset = self.calculate_offset(((x_max+x_min)//2, (y_max+y_min)//2))
                 color_image = self.write_bbx_frame(
                     color_image, bbox, label, conf)
-                kalman_prediction = self.tracker_object.track(bbox, hsv_roi, color_image)
-                color_image = self.write_bbx_frame(
-                    color_image, kalman_prediction, "kalman", conf="", color=(0,0,255), thickness=2
-                )
+                # tracked_objects = mot_tracker.update(detections.cpu())
+                # kalman_prediction = self.tracker_object.track(bbox, hsv_roi, color_image)
+                # color_image = self.write_bbx_frame(
+                #     color_image, kalman_prediction, "kalman", conf="", color=(0,0,255), thickness=2
+                # )
         # Display the image
         cv2.imshow('RealSense', color_image)
         cv2.waitKey(1)
