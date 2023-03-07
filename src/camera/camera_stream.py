@@ -71,7 +71,7 @@ if ((majorCV <= '3') and (minorCV <= '4')):
 
 # set up logging
 
-log_level = logging.INFO  # change to .INFO / .DEBUG for useful info
+log_level = logging.DEBUG  # change to .INFO / .DEBUG for useful info
 
 log_msg_format = '%(asctime)s - Thead ID: %(thread)d - %(message)s'
 logging.basicConfig(format=log_msg_format, level=log_level)
@@ -111,7 +111,7 @@ atexit.register(closeDownAllThreadsCleanly)
 
 
 class CameraVideoStream:
-    def __init__(self, src=None, backend=None,
+    def __init__(self, src, backend=None,
                  name="CameraVideoStream", use_tapi=False):
 
         # initialize the thread name
@@ -153,6 +153,7 @@ class CameraVideoStream:
 
         # if a source was specified at init, proceed to open device
         if not (src is None):
+            print("starting")
             self.open(src, backend)
 
     def open(self, src, backend=None):

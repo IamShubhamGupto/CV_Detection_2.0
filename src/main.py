@@ -15,11 +15,19 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def main():
-    camera_object = Camera("camera_thread", 1, video_path='../example/vid.mp4')
-    camera_object.start()
+    # camera_object = Camera("camera_thread", 1, video_path='../example/vid.mp4')
+    # camera_object.start()
+
+    try:
+        import camera.camera_stream
+        video_stream = camera_stream.CameraVideoStream(2,use_tapi=True)
+        print("INFO: using CameraVideoStream() threaded capture")
+    except BaseException:
+        print("INFO: CameraVideoStream() module not found")
+        video_stream = cv2.VideoCapture()
     # torch_model_object = TorchModel("model_thread", 2, weights_path='./model_/pt_files/best.pt')
     # torch_model_object.start()
-    video_stream = camera_object.get_video_stream()
+    # video_stream = camera_object.get_video_stream()
     logger.debug("Got video stream")
     camera_width = video_stream.get(cv2.CAP_PROP_FRAME_WIDTH)
     camera_height = video_stream.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -31,6 +39,7 @@ def main():
     prev_frame_time = 0
     new_frame_time = 0
     while video_stream.isOpened():
+        print('yes')
         try:
             ret, frame = video_stream.read()
         except:
@@ -48,7 +57,7 @@ def main():
         prev_frame_time = new_frame_time
         logger.info(f"FPS={str(int(fps))}")
         # cv2.putText(frame, str(int(fps)), (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 3, (100, 255, 0), 3, cv2.LINE_AA)
-    camera_object.join()
+    # camera_object.join()
     # torch_model_object.joisn()
     process_frame_object.join()
 
