@@ -32,7 +32,7 @@ def main():
             logger.error("Error getting frame")
 
         # Prompt 2 - display True
-        process_frame_object.process_frame(color_image=frame, torch_model_object=torch_model, detect_red=True)
+        process_frame_object.process_frame(color_image=frame, torch_model_object=torch_model, detect_red=detect_red)
 
         if ret:
             key = cv2.waitKey(1)

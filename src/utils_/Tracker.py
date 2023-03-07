@@ -1,4 +1,5 @@
 # https://github.com/tobybreckon/python-examples-cv/blob/master/kalman_tracking_live.py
+# deprecated
 import cv2
 import numpy as np
 
